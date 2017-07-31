@@ -50,7 +50,7 @@ const createPost = (req, res) => {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Error saving post.');
       } else {
-        res.writeHead(301, { Location: '/index.html' });
+        res.writeHead(301, { Location: '/' });
         res.end();
       }
     });

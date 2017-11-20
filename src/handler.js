@@ -5,11 +5,7 @@ const qs = require('querystring');
 const posts = require('./posts.json');
 
 const respondWith = (res, statusCode, contentType, content, headers) => {
-  if (headers) {
-    res.writeHead(statusCode, headers);
-  } else {
-    res.writeHead(statusCode, { 'Content-Type': contentType });
-  }
+  res.writeHead(statusCode, headers || { 'Content-Type': contentType });
   res.end(content);
 };
 

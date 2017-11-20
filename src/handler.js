@@ -4,6 +4,11 @@ const qs = require('querystring');
 // Node.js is able to import json files directly (no need for fs.readFile)
 const posts = require('./posts.json');
 
+const respondWith = (res, statusCode, contentType, content) => {
+  res.writeHead(statusCode, { 'Content-Type': contentType });
+  res.end(content);
+};
+
 const handleFile = (res, endpoint) => {
   // Get the content type based on the file extension
   const contentType = {
@@ -16,19 +21,14 @@ const handleFile = (res, endpoint) => {
   // Read and serve the file with the correct MIME type if it exists
   // Otherwise show an error message
   fs.readFile(path.join(__dirname, '..', 'public', endpoint), (err, file) => {
-    if (err) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Error loading content');
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(file);
-    }
+    if (err)
+      return respondWith(res, 404, 'text/plain', 'Error loading conntent');
+    respondWith(res, 200, contentType, file);
   });
 };
 
 const fetchPosts = res => {
-  res.writeHead(200, {'Content-Type': 'application/json'});
-  res.end(JSON.stringify(posts));
+  respondWith(res, 200, 'application/json', JSON.stringify(posts));
 };
 
 const createPost = (req, res) => {
@@ -46,13 +46,10 @@ const createPost = (req, res) => {
 
     // overwrite the old JSON file with our new JSON string
     fs.writeFile(path.join(__dirname, 'posts.json'), post, (err, file) => {
-      if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Error saving post.');
-      } else {
-        res.writeHead(301, { Location: '/' });
-        res.end();
-      }
+      if (err) return respondWith(res, 500, 'text/plain', 'Error saving post.');
+
+      res.writeHead(301, { Location: '/' });
+      res.end();
     });
   });
 };
